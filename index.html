@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesca Perú — Reporte del Mar, Mareas y Pique</title>
+<meta name="description" content="Estado del mar en vivo, tabla de mareas, reportes del pique por zona y guías de pesca en el litoral peruano.">
+<style>
+:root{
+  --mar:#0b2a4a; --mar-2:#123e6b; --arena:#f4ead8; --papel:#fbf7ee;
+  --tinta:#1d2b36; --coral:#e4572e; --alga:#1e7a5a; --sol:#f2a007;
+  --linea:#e3d9c4; --radio:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--papel);color:var(--tinta);
+  font-family:Georgia,"Iowan Old Style","Times New Roman",serif;line-height:1.6}
+.topbar{background:var(--mar);color:#fff;padding:10px 20px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.topbar .marca{font-weight:700;letter-spacing:.5px}
+.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}
+.topbar a{color:#ffe9c4;text-decoration:none;font-family:Verdana,Geneva,sans-serif;font-size:.85rem}
+.hero{background:linear-gradient(180deg,var(--mar) 0%,var(--mar-2) 70%,#0b2a4a 100%);color:#fff;padding:56px 20px 40px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -20% -70px -20%;height:120px;background:var(--papel);transform:rotate(-2deg)}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative}
+.kicker{font-family:Verdana,sans-serif;font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--sol)}
+h1{font-size:clamp(2.2rem,5vw,3.6rem);margin:.3em 0 .2em;line-height:1.05}
+.hero p.lede{max-width:60ch;font-size:1.1rem;color:#dcebf7}
+.cta-row{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+.btn{font-family:Verdana,sans-serif;font-weight:700;font-size:.9rem;border-radius:999px;padding:13px 24px;border:2px solid transparent;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-sol{background:var(--sol);color:#3a2400}
+.btn-linea{background:transparent;color:#fff;border-color:#7fb3dd}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+section{padding:38px 0 8px}
+h2{font-size:1.7rem;margin:0 0 4px}
+.sub{color:#5b6b76;margin:0 0 20px;font-style:italic}
+.panel{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);padding:22px;box-shadow:0 2px 0 rgba(11,42,74,.06)}
+.grid-select{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:640px){.grid-select{grid-template-columns:1fr}}
+label{font-family:Verdana,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mar);display:block;margin-bottom:6px}
+select{width:100%;font-size:1.05rem;padding:14px;border-radius:10px;border:2px solid var(--mar);background:#fff;color:var(--tinta);min-height:52px}
+.medidores{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+@media(max-width:760px){.medidores{grid-template-columns:repeat(2,1fr)}}
+.medidor{border:1px solid var(--linea);border-radius:12px;padding:14px 12px;text-align:left;background:var(--papel)}
+.medidor .v{font-size:1.9rem;font-weight:700;color:var(--mar);line-height:1.1}
+.medidor .u{font-size:.8rem;color:#5b6b76;font-family:Verdana,sans-serif}
+.medidor .t{font-family:Verdana,sans-serif;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:#7a8a94;margin-bottom:4px}
+.alerta{border-left:6px solid var(--alga);background:#eef7f1;padding:12px 16px;border-radius:0 10px 10px 0;font-family:Verdana,sans-serif;font-size:.9rem;margin-top:12px}
+.alerta.mal{border-color:var(--coral);background:#fdeee7}
+.alerta.reg{border-color:var(--sol);background:#fdf6e3}
+.horas{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;margin-top:12px}
+.hora{flex:0 0 86px;border:1px solid var(--linea);border-radius:10px;padding:8px 6px;text-align:center;background:#fff}
+.hora b{display:block;font-size:1.05rem;color:var(--mar)}
+.hora span{font-size:.72rem;color:#5b6b76;font-family:Verdana,sans-serif}
+.hora.ahora{border-color:var(--coral);box-shadow:0 0 0 2px #f6c9b6}
+.bitacora{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.bitacora{grid-template-columns:1fr}}
+.post{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden;display:flex;flex-direction:column}
+.post .franja{font-family:Verdana,sans-serif;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;color:#fff}
+.franja.norte{background:#1e7a5a}.franja.centro{background:var(--mar)}.franja.sur{background:var(--coral)}
+.post .cuerpo{padding:16px 18px}
+.post h3{margin:0 0 6px;font-size:1.25rem}
+.post p{margin:0 0 10px;font-size:.98rem}
+.post .dato{font-family:Verdana,sans-serif;font-size:.78rem;color:#5b6b76;border-top:1px dashed var(--linea);padding-top:10px}
+table.mareas{width:100%;border-collapse:collapse;font-size:.95rem;background:#fff}
+table.mareas th{font-family:Verdana,sans-serif;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;background:var(--mar);color:#fff;padding:10px}
+table.mareas td{padding:10px;border-bottom:1px solid var(--linea);text-align:center}
+table.mareas tr.hoy td{background:#fff6e3;font-weight:700}
+.guias{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:760px){.guias{grid-template-columns:1fr}}
+.guia{border:1px solid var(--linea);border-radius:var(--radio);padding:18px;background:#fff}
+.guia h4{margin:0 0 8px;font-size:1.1rem}
+.guia p{font-size:.92rem;margin:0 0 12px}
+.guia a{font-family:Verdana,sans-serif;font-size:.82rem;color:var(--mar-2);font-weight:700}
+footer{background:var(--mar);color:#cfe0ef;margin-top:40px;padding:26px 20px;font-size:.85rem;font-family:Verdana,sans-serif}
+footer .wrap{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline}
+#cargando{font-weight:700}
+.offline{background:#fff3cd;border:1px solid #e6c200;border-radius:10px;padding:10px 14px;font-family:Verdana,sans-serif;font-size:.82rem;margin-bottom:12px;display:none}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="marca">🎣 Pesca Perú</span>
+  <nav>
+    <a href="#mar">Estado del mar</a>
+    <a href="#mareas">Mareas</a>
+    <a href="#pique">Reporte del pique</a>
+    <a href="#guias">Guías</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="kicker">Litoral peruano · Datos en vivo</div>
+    <h1>¿Salgo o no salgo? El mar, primero.</h1>
+    <p class="lede">Oleaje, viento y temperatura del agua ahora mismo en tu caleta, tabla de mareas de 7 días y el reporte del pique por zona. Hecho para leerse bajo el sol, con una mano y poca señal.</p>
+    <div class="cta-row">
+      <a class="btn btn-sol" href="#mar">Ver mi caleta</a>
+      <a class="btn btn-linea" href="#pique">Reporte del pique</a>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="offline" id="offline">📴 Sin conexión: mostrando el último dato guardado.</div>
+
+  <section id="mar">
+    <h2>Estado del mar ahora</h2>
+    <p class="sub">Fuente: Open-Meteo Marine (GFS + WaveWatch III). Sin claves, sin costo.</p>
+    <div class="panel">
+      <div class="grid-select">
+        <div>
+          <label for="caleta">Tu caleta</label>
+          <select id="caleta">
+            <optgroup label="Norte">
+              <option value="-3.51,-80.40">Puerto Pizarro (Tumbes)</option>
+              <option value="-3.64,-80.97">Punta Sal (Tumbes)</option>
+              <option value="-3.94,-80.94">Cancas (Tumbes)</option>
+              <option value="-4.58,-81.27">Talara</option>
+              <option value="-4.90,-80.69">Paita</option>
+              <option value="-5.90,-81.10">Máncora / Cabo Blanco</option>
+              <option value="-7.39,-79.59">Pacasmayo</option>
+              <option value="-7.70,-79.46">Chicama</option>
+              <option value="-9.07,-78.59">Chimbote</option>
+              <option value="-8.98,-78.65">Santa (Áncash)</option>
+              <option value="-9.24,-78.50">Samanco</option>
+              <option value="-9.95,-78.23">Culebras</option>
+              <option value="-10.09,-78.17">Huarmey</option>
+              <option value="-8.45,-77.39">Casma</option>
+              <option value="-6.76,-79.97">Salaverry (Trujillo)</option>
+            </optgroup>
+            <optgroup label="Centro">
+              <option value="-11.77,-77.18">Ancón</option>
+              <option value="-12.05,-77.16">Callao</option>
+              <option value="-12.12,-77.04" selected>Makaha, Miraflores (Lima)</option>
+              <option value="-12.72,-76.63">Pucusana / Chilca</option>
+              <option value="-13.46,-76.19">Tambo de Mora</option>
+              <option value="-13.69,-76.22">Pisco</option>
+              <option value="-13.80,-76.29">San Martín (Paracas)</option>
+            </optgroup>
+            <optgroup label="Sur">
+              <option value="-15.25,-75.24">San Nicolás / San Juan</option>
+              <option value="-15.36,-75.19">San Juan de Marcona</option>
+              <option value="-15.56,-74.85">Lomas (Caravelí)</option>
+              <option value="-15.85,-75.25">Chala</option>
+              <option value="-16.22,-73.70">Atico</option>
+              <option value="-16.71,-72.43">Quilca (Camaná)</option>
+              <option value="-17.04,-72.00">Mollendo</option>
+              <option value="-16.99,-72.03">Matarani</option>
+              <option value="-17.19,-71.79">Lomas de Jesús (Punta de Bombón)</option>
+              <option value="-17.25,-71.60">Corío (Punta de Bombón)</option>
+              <option value="-17.64,-71.34">Ilo</option>
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label for="hora">Pronóstico hora por hora</label>
+          <select id="hora" disabled><option>Se carga con tu caleta…</option></select>
+        </div>
+      </div>
+      <div id="cargando">Consultando boyas y modelos…</div>
+      <div id="datos" hidden>
+        <div class="medidores">
+          <div class="medidor"><div class="t">Olas</div><div class="v"><span id="m-olas">–</span></div><div class="u">metros · <span id="m-periodo">–</span> s de periodo</div></div>
+          <div class="medidor"><div class="t">Viento</div><div class="v"><span id="m-viento">–</span></div><div class="u">km/h · <span id="m-dir">–</span></div></div>
+          <div class="medidor"><div class="t">Agua</div><div class="v"><span id="m-agua">–</span></div><div class="u">°C superficie</div></div>
+          <div class="medidor"><div class="t">Aire</div><div class="v"><span id="m-aire">–</span></div><div class="u">°C · <span id="m-hora">–</span></div></div>
+        </div>
+        <div class="alerta" id="veredicto">—</div>
+        <div class="horas" id="horas"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mareas">
+    <h2>Tabla de mareas · 7 días</h2>
+    <p class="sub">Pleamares y bajamares estimadas para tu caleta (modelo astronómico, confirma con Capitanía).</p>
+    <div class="panel">
+      <table class="mareas" id="tabla-mareas">
+        <thead><tr><th>Día</th><th>Pleamar</th><th>Bajamar</th><th>Coef.</th></tr></thead>
+        <tbody><tr><td colspan="4">Elige tu caleta arriba para calcular.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="pique">
+    <h2>Reporte del pique</h2>
+    <p class="sub">Lo que está saliendo, por zona. Actualizado cada semana con reportes de orilla.</p>
+    <div class="bitacora">
+      <article class="post"><div class="franja norte">Zona Norte</div><div class="cuerpo">
+        <h3>Máncora y Cabo Blanco: el mero no perdona</h3>
+        <p>Ojo de uva y mero sobre los 3 kg con jigs de 60 g al amanecer. El atún de aleta amarilla ronda fuera de las 5 millas; lleva pota fresca.</p>
+        <div class="dato">📍 Paita · Salaverry · Semana actual · Mar movido, pesca de fondo</div>
+      </div></article>
+      <article class="post"><div class="franja centro">Zona Centro</div><div class="cuerpo">
+        <h3>Ancón: lenguado con vinilo blanco</h3>
+        <p>Capturas moderadas de lenguado en las primeras dos horas de luz con vinilos blancos y pejerrey vivo. En Chorrillos la corvina pica al atardecer.</p>
+        <div class="dato">📍 Ancón · Chorrillos · Pucusana · Mejor ventana: 05:30–08:00</div>
+      </div></article>
+      <article class="post"><div class="franja sur">Zona Sur</div><div class="cuerpo">
+        <h3>Pisco y Marcona: pintadilla firme</h3>
+        <p>Monitoreo activo en San Juan de Marcona y Matarani. La pintadilla y el sargo responden bien con muy-muy en pozas de arena.</p>
+        <div class="dato">📍 Pisco · Marcona · Matarani · Ilo · Ojo al viento Paracas</div>
+      </div></article>
+      <article class="post"><div class="franja centro">Mareas y luna</div><div class="cuerpo">
+        <h3>Cuarto creciente: pique nocturno</h3>
+        <p>Con luna creciendo, la corvina se acerca a la orilla de noche. Revisa la tabla de mareas de arriba y apunta a la pleamar +2 h.</p>
+        <div class="dato">🌙 Consejo de luna · Vale para todo el litoral</div>
+      </div></article>
+    </div>
+  </section>
+
+  <section id="guias">
+    <h2>Guías, nudos y equipos</h2>
+    <p class="sub">Lo que no caduca: carnada, aparejos y cañas para nuestra costa.</p>
+    <div class="guias">
+      <div class="guia"><h4>🪱 Carnadas: muy-muy, pota y pejerrey</h4><p>Cómo conservar el muy-muy vivo en Chilca y cuándo cambiar a pota en el norte.</p><a href="#guias">Leer guía →</a></div>
+      <div class="guia"><h4>🎣 Cañas de spinning para el Perú</h4><p>Acción, largo y potencia ideales para lenguado en arena vs peña del sur.</p><a href="#guias">Leer guía →</a></div>
+      <div class="guia"><h4>🪢 Nudos que no fallan</h4><p>FG, Palomar y doble cirujano explicados para línea trenzada con líder de flúor.</p><a href="#guias">Leer guía →</a></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <span>🎣 Pesca Perú — MVP web. Datos marinos: Open-Meteo (GFS/WW3). Mareas: modelo astronómico simplificado.</span>
+  <span>Pesca responsable: respeta tallas mínimas y vedas de PRODUCE.</span>
+</div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const DIR = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+const rumbo = g => DIR[Math.round(g/22.5)%16];
+let cache = {t:[],olas:[],viento:[],dirv:[],agua:[],aire:[]};
+
+async function cargar(){
+  const [lat,lon] = $('caleta').value.split(',').map(Number);
+  const nombre = $('caleta').selectedOptions[0].text;
+  $('cargando').hidden = false; $('datos').hidden = true;
+  try{
+    const u = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_direction,wave_period,sea_surface_temperature&hourly=wave_height,wind_speed_10m,wind_direction_10m,temperature_2m&daily=sunrise,sunset&timezone=America%2FLima&forecast_days=7`;
+    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=America%2FLima`);
+    const r = await fetch(u);
+    if(!r.ok) throw 0;
+    const d = await r.json(), dw = await w.json();
+    const i = d.current.time ? d.hourly.time.indexOf(d.current.time.slice(0,13)+':00') : 0;
+    const k = i < 0 ? 0 : i;
+    cache = {t:d.hourly.time.slice(k,k+24), olas:d.hourly.wave_height.slice(k,k+24),
+             viento:d.hourly.wind_speed_10m.slice(k,k+24), dirv:d.hourly.wind_direction_10m.slice(k,k+24),
+             agua:Array(24).fill(d.current.sea_surface_temperature), aire:d.hourly.temperature_2m.slice(k,k+24)};
+    $('m-olas').textContent = d.current.wave_height.toFixed(2);
+    $('m-periodo').textContent = d.current.wave_period.toFixed(1);
+    $('m-viento').textContent = Math.round(cache.viento[0]*3.6);
+    $('m-dir').textContent = rumbo(d.current.wave_direction)+' '+Math.round(d.current.wave_direction)+'°';
+    $('m-agua').textContent = d.current.sea_surface_temperature.toFixed(1);
+    $('m-aire').textContent = (dw.current?.temperature_2m ?? d.hourly.temperature_2m[k]).toFixed(1);
+    $('m-hora').textContent = new Date(d.current.time+'-05:00').toLocaleString('es-PE',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
+    // veredicto
+    const o = d.current.wave_height, v = cache.viento[0]*3.6, el = $('veredicto');
+    let txt, cls='';
+    if(o<=1.2 && v<20){ txt='✅ Mar bueno para orilla y bote chico en '+nombre+'.'; }
+    else if(o<=2.0 && v<30){ txt='⚠️ Mar regular en '+nombre+': solo orilla protegida y bote con experiencia.'; cls='reg'; }
+    else { txt='🛑 Mar movido en '+nombre+': mejor quedarse en casa y revisar carnadas.'; cls='mal'; }
+    el.textContent = txt; el.className = 'alerta '+cls;
+    // horas
+    const hb = $('horas'); hb.innerHTML='';
+    cache.t.forEach((t,j)=>{
+      const f = new Date(t+'-05:00');
+      const div = document.createElement('div');
+      div.className = 'hora'+(j===0?' ahora':'');
+      div.innerHTML = `<b>${cache.olas[j].toFixed(1)}m</b><span>${f.toLocaleString('es-PE',{hour:'2-digit',minute:'2-digit'})}</span><span>${Math.round(cache.viento[j]*3.6)} km/h</span>`;
+      hb.appendChild(div);
+    });
+    const hs = $('hora'); hs.innerHTML=''; hs.disabled=false;
+    cache.t.forEach((t,j)=>{
+      const o=document.createElement('option'); o.value=j;
+      o.textContent=new Date(t+'-05:00').toLocaleString('es-PE',{weekday:'short',hour:'2-digit',minute:'2-digit'});
+      hs.appendChild(o);
+    });
+    hs.onchange = e => {
+      const j = +e.target.value;
+      $('m-olas').textContent = cache.olas[j].toFixed(2);
+      $('m-viento').textContent = Math.round(cache.viento[j]*3.6);
+      $('m-dir').textContent = rumbo(cache.dirv[j])+' '+Math.round(cache.dirv[j])+'°';
+      $('m-aire').textContent = cache.aire[j].toFixed(1);
+    };
+    mareas(lat, lon);
+    localStorage.setItem('pesca-'+lat+','+lon, JSON.stringify({t:Date.now(), olas:$('m-olas').textContent, veredicto:txt}));
+    $('cargando').hidden = true; $('datos').hidden = false;
+    $('offline').style.display='none';
+  }catch(e){
+    const g = localStorage.getItem('pesca-'+lat+','+lon);
+    $('cargando').hidden = true;
+    if(g){ const d=JSON.parse(g); $('offline').style.display='block';
+      $('datos').hidden=false; $('m-olas').textContent=d.olas; $('veredicto').textContent=d.veredicto+' (dato guardado)';
+    } else $('cargando').textContent = 'Sin conexión y sin dato guardado. Intenta de nuevo con señal.';
+  }
+}
+
+// Mareas: modelo armónico simplificado M2+S2+K1 (estimación, no oficial)
+function mareas(lat, lon){
+  const tb = document.querySelector('#tabla-mareas tbody'); tb.innerHTML='';
+  const hoy = new Date();
+  const fase = (lon*0.5 + lat*0.3) % (Math.PI*2);
+  for(let d=0; d<7; d++){
+    const f = new Date(hoy); f.setDate(hoy.getDate()+d);
+    const t0 = Date.UTC(f.getFullYear(),f.getMonth(),f.getDate())/3600000;
+    const ple=[], baj=[];
+    for(let h=0; h<24; h+=0.25){
+      const t=t0+h;
+      const n = 0.9*Math.cos(2*Math.PI*(t-3)/12.42+fase) + 0.35*Math.cos(2*Math.PI*(t-1)/12.0+fase*0.7) + 0.25*Math.cos(2*Math.PI*(t-8)/23.93);
+      const np = 0.9*Math.cos(2*Math.PI*(t+0.25-3)/12.42+fase) + 0.35*Math.cos(2*Math.PI*(t+0.25-1)/12.0+fase*0.7) + 0.25*Math.cos(2*Math.PI*(t+0.25-8)/23.93);
+      const hh = String(Math.floor(h)).padStart(2,'0')+':'+(h%1?'30':'00');
+      if(n>np && (ple.length===0 || h-ple[ple.length-1].h>4)) ple.push({h,hh});
+      if(n<np && (baj.length===0 || h-baj[baj.length-1].h>4)) baj.push({h,hh});
+    }
+    const tr = document.createElement('tr');
+    if(d===0) tr.className='hoy';
+    const coef = Math.round(60+35*Math.abs(Math.sin((t0/24+fase)*Math.PI/14.7)));
+    tr.innerHTML = `<td>${f.toLocaleDateString('es-PE',{weekday:'short',day:'numeric',month:'short'})}</td>
+      <td>${ple.slice(0,2).map(p=>p.hh).join(' · ')||'—'}</td>
+      <td>${baj.slice(0,2).map(p=>p.hh).join(' · ')||'—'}</td><td>${coef}</td>`;
+    tb.appendChild(tr);
+  }
+}
+
+$('caleta').addEventListener('change', cargar);
+document.addEventListener('DOMContentLoaded', cargar);
+</script>
+</body>
+</html>
